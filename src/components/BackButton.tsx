@@ -1,5 +1,6 @@
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {colors} from '../theme';
 
 interface Props {
   onPress: () => void;
@@ -16,7 +17,7 @@ export const BackButton = ({onPress}: Props) => {
       activeOpacity={0.75}
       onPress={onPress}
       style={styles.wrapper}>
-      <Icon name="arrow-back" size={26} color="black" />
+      <Icon name="arrow-back" size={26} color="white" />
     </TouchableOpacity>
   );
 };
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: 'lightgray',
+    backgroundColor: colors.primary,
     borderRadius: 50,
     padding: 8,
     zIndex: 1,

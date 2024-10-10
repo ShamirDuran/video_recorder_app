@@ -1,5 +1,6 @@
 import {useRef} from 'react';
 import {StyleSheet} from 'react-native';
+import Toast from 'react-native-toast-message';
 import Video, {VideoRef} from 'react-native-video';
 
 interface VideoPlayerProps {
@@ -21,6 +22,13 @@ export const VideoPlayer = ({video}: VideoPlayerProps) => {
       resizeMode="cover"
       paused={true}
       style={styles.video}
+      onError={_ =>
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Se ha producido un error al cargar el video',
+        })
+      }
     />
   );
 };

@@ -2,6 +2,7 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamsList} from '../navigator/StackNavigator';
 import {StyledButton} from '../components';
+import {colors} from '../theme';
 
 export const HomeScreen = ({
   navigation,
@@ -38,6 +39,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#C6D4FF',
+    backgroundColor: colors.secondary,
   },
 });

@@ -1,4 +1,5 @@
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {colors} from '../theme';
 
 interface Props {
   onPress: () => void;
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 5,
     elevation: 3,
-    backgroundColor: '#7A82AB',
+    backgroundColor: colors.primary,
     minWidth: 135,
   },
   text: {
