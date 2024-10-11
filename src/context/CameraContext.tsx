@@ -68,6 +68,12 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     requestPermission: requestMicroPermission,
   } = useMicrophonePermission();
 
+  const clearDataOnStopRecording = () => {
+    setVideoLength(0);
+    setIsRecording(false);
+    stopTimer();
+  };
+
   // Start recording and start the timer
   const startRecording = async () => {
     if (cameraRef.current) {
@@ -76,31 +82,29 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
           flash: isFlashEnabled ? 'on' : 'off',
           videoBitRate: 'high',
           onRecordingFinished: video => {
-            console.log('Video recorded:', video);
-            setVideoLength(0); // Reset video length when recording is finished
+            console.log('Video grabado:', video);
+            clearDataOnStopRecording();
           },
           onRecordingError: error => {
-            console.error('Error recording video:', error);
-            setVideoLength(0); // Reset video length if there's an error
+            console.error('Error grabando video:', error);
+            clearDataOnStopRecording();
           },
         });
 
         setIsRecording(true);
-        setVideoLength(0); // Reset video length
+        setVideoLength(5); // Reset video length
         startTimer(); // Start the timer when recording starts
       } catch (error) {
-        console.error('Error starting recording:', error);
+        console.error('Error al iniciar la grabación:', error);
       }
     }
   };
 
   // Stop recording and stop the timer
-  const stopRecording = async () => {
-    if (cameraRef.current && isRecording) {
-      await cameraRef.current.stopRecording();
-      setIsRecording(false);
-      stopTimer(); // Stop the timer when recording stops
-      setVideoLength(0); // Reset video length when recording is stopped
+  const stopRecording = async (force = false) => {
+    if (isRecording || force) {
+      await cameraRef.current?.stopRecording();
+      clearDataOnStopRecording();
     }
   };
 
@@ -125,9 +129,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
   const cancelRecording = async () => {
     if (cameraRef.current && isRecording) {
       await cameraRef.current.cancelRecording();
-      setIsRecording(false);
-      stopTimer(); // Stop the timer when recording is canceled
-      setVideoLength(0); // Reset video length if recording is canceled
+      clearDataOnStopRecording();
     }
   };
 
@@ -135,7 +137,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
   const startTimer = () => {
     if (!timerRef.current) {
       timerRef.current = setInterval(() => {
-        setVideoLength(prev => prev + 1); // Increment video length by 1 second
+        setVideoLength(prev => prev - 1); // Increment video length by 1 second
       }, 1000); // Increment every 1 second
     }
   };
@@ -162,9 +164,17 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     setDevice(newDevice);
   };
 
-  // Clean up the timer when the component unmounts
   useEffect(() => {
-    return () => stopTimer();
+    if (videoLength === 0) {
+      stopRecording(true);
+    }
+  }, [videoLength]);
+
+  // Clean up everything when the component unmounts
+  useEffect(() => {
+    return () => {
+      stopTimer(); // Stop the timer when the component unmounts
+    };
   }, []);
 
   return (

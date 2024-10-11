@@ -62,7 +62,6 @@ export const CameraScreen = ({
         ref={cameraRef}
         video={true} // Record video
         audio={true} // Record audio
-        zoom={1}
       />
       <BottomControls />
     </SafeAreaView>
