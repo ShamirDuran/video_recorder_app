@@ -1,6 +1,10 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 import {CameraScreen, HomeScreen, ImageScreen, VideoScreen} from '../screens';
 import {GalleryScreen} from '../screens/Gallery';
+import {CameraProvider} from '../context';
 
 export type RootStackParamsList = {
   Home: undefined;
@@ -11,6 +15,15 @@ export type RootStackParamsList = {
 };
 
 const Stack = createNativeStackNavigator<RootStackParamsList>();
+
+const CameraWithProvider = ({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamsList, 'Camera'>) => (
+  <CameraProvider>
+    <CameraScreen navigation={navigation} route={route} />
+  </CameraProvider>
+);
 
 const StackNavigator = () => {
   return (
@@ -24,7 +37,7 @@ const StackNavigator = () => {
         <Stack.Screen name="Image" component={ImageScreen} />
         <Stack.Screen name="Video" component={VideoScreen} />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
-        <Stack.Screen name="Camera" component={CameraScreen} />
+        <Stack.Screen name="Camera" component={CameraWithProvider} />
       </Stack.Group>
     </Stack.Navigator>
   );

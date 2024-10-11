@@ -2026,6 +2026,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-camera-roll/camera-roll@npm:^7.8.3":
+  version: 7.8.3
+  resolution: "@react-native-camera-roll/camera-roll@npm:7.8.3"
+  peerDependencies:
+    react-native: ">=0.59"
+  checksum: 1465566ed52b6e1478debcebc1bcaecbd6752611064d7fd5a0c4ed06deb702626ebd945c7ca664d5d070f822a4d3338e5dbb447a9acb27adb35dd77f8bfba2f9
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-clean@npm:14.1.0":
   version: 14.1.0
   resolution: "@react-native-community/cli-clean@npm:14.1.0"
@@ -2923,6 +2932,7 @@ __metadata:
     "@babel/core": ^7.20.0
     "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.20.0
+    "@react-native-camera-roll/camera-roll": ^7.8.3
     "@react-native/babel-preset": 0.75.4
     "@react-native/eslint-config": 0.75.4
     "@react-native/metro-config": 0.75.4
@@ -2943,6 +2953,7 @@ __metadata:
     react-native-toast-message: ^2.2.1
     react-native-vector-icons: ^10.2.0
     react-native-video: ^6.6.4
+    react-native-vision-camera: ^4.5.3
     react-test-renderer: 18.3.1
     typescript: 5.0.4
   languageName: unknown
@@ -7961,6 +7972,26 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: cf68bc6099b5f2a8e51a761ef35f35e0c05e158fc45154c1e6af9c2fd0a70b88be708f88438938c35a48e967041bbaa8b64bd71a1e2c9f379ec9f1031e72cc9e
+  languageName: node
+  linkType: hard
+
+"react-native-vision-camera@npm:^4.5.3":
+  version: 4.5.3
+  resolution: "react-native-vision-camera@npm:4.5.3"
+  peerDependencies:
+    "@shopify/react-native-skia": "*"
+    react: "*"
+    react-native: "*"
+    react-native-reanimated: "*"
+    react-native-worklets-core: "*"
+  peerDependenciesMeta:
+    "@shopify/react-native-skia":
+      optional: true
+    react-native-reanimated:
+      optional: true
+    react-native-worklets-core:
+      optional: true
+  checksum: 99d57a70f93134903ae25ef798947f79804ea00e3b58cbb21131115552e6f2950d2a3be9a6a237232ca6bab7b5031aa12d9ca2df659be39dc607d75997317abc
   languageName: node
   linkType: hard
 

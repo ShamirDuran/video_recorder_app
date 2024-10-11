@@ -2,17 +2,21 @@ import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {colors} from '../theme';
 
 interface Props {
-  onPress: () => void;
   text: string;
+  onPress: () => void;
+  styles?: any;
 }
 
-export const StyledButton = ({onPress, text}: Props) => {
+export const StyledButton = (props: Props) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>{text}</Text>
+    <TouchableOpacity
+      style={props.styles ?? styles.button}
+      onPress={props.onPress}>
+      <Text style={styles.text}>{props.text}</Text>
     </TouchableOpacity>
   );
 };
+
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
