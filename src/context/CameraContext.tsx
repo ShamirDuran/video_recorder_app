@@ -1,4 +1,4 @@
-import {createContext, useEffect, useRef, useState} from 'react';
+import {createContext, useEffect, useRef, useState, useCallback} from 'react';
 import {
   Camera,
   CameraDevice,
@@ -7,6 +7,11 @@ import {
   useCameraPermission,
   useMicrophonePermission,
 } from 'react-native-vision-camera';
+import {useStoragePermissions, useTimer} from '../hooks';
+import {PermissionsAndroid, Platform} from 'react-native';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+
+export const ALBUM_NAME = 'VideoRecorderApp';
 
 interface CameraProviderProps {
   children: React.ReactNode;
@@ -25,9 +30,11 @@ interface CameraContextType {
   cancelRecording: () => void;
   toggleCameraPosition: () => void;
   hasCameraPermission: boolean;
-  requestCameraPermission: () => void;
   hasMicroPermission: boolean;
+  hasStoragePermissions: boolean;
+  requestCameraPermission: () => void;
   requestMicroPermission: () => void;
+  requestStoragePermissions: () => void;
   toggleFlash: () => void;
 }
 
@@ -40,9 +47,11 @@ export const CameraContext = createContext<CameraContextType>({
   resumeRecording: () => {},
   cancelRecording: () => {},
   hasCameraPermission: false,
-  requestCameraPermission: () => {},
   hasMicroPermission: false,
+  hasStoragePermissions: false,
+  requestCameraPermission: () => {},
   requestMicroPermission: () => {},
+  requestStoragePermissions: () => {},
   toggleCameraPosition: () => {},
   toggleFlash: () => {},
 });
@@ -50,40 +59,41 @@ export const CameraContext = createContext<CameraContextType>({
 export const CameraProvider = ({children}: CameraProviderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isFlashEnabled, setIsFlashEnabled] = useState(false);
-  const [videoLength, setVideoLength] = useState(0); // Time in seconds
+  const [videoLength, setVideoLength] = useState(0);
   const cameraRef = useRef<Camera>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // To store the timer reference
-
-  const devices = Camera.getAvailableCameraDevices();
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>('back');
-  const [device, setDevice] = useState<CameraDevice | undefined>(devices[0]);
+  const [device, setDevice] = useState<CameraDevice | undefined>(
+    Camera.getAvailableCameraDevices()[0],
+  );
 
   const {
     hasPermission: hasCameraPermission,
     requestPermission: requestCameraPermission,
   } = useCameraPermission();
-
   const {
     hasPermission: hasMicroPermission,
     requestPermission: requestMicroPermission,
   } = useMicrophonePermission();
 
-  const clearDataOnStopRecording = () => {
+  const {
+    hasPermissions: hasStoragePermissions,
+    requestPermissions: requestStoragePermissions,
+  } = useStoragePermissions();
+
+  const clearDataOnStopRecording = useCallback(() => {
     setVideoLength(0);
     setIsRecording(false);
-    stopTimer();
-  };
+  }, []);
 
-  // Start recording and start the timer
   const startRecording = async () => {
     if (cameraRef.current) {
       try {
         cameraRef.current.startRecording({
           flash: isFlashEnabled ? 'on' : 'off',
           videoBitRate: 'high',
-          onRecordingFinished: video => {
+          onRecordingFinished: async video => {
             console.log('Video grabado:', video);
-            clearDataOnStopRecording();
+            await saveVideo(video.path);
           },
           onRecordingError: error => {
             console.error('Error grabando video:', error);
@@ -93,14 +103,26 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
 
         setIsRecording(true);
         setVideoLength(5); // Reset video length
-        startTimer(); // Start the timer when recording starts
       } catch (error) {
         console.error('Error al iniciar la grabación:', error);
       }
     }
   };
 
-  // Stop recording and stop the timer
+  const saveVideo = async (videoUri: string) => {
+    try {
+      if (Platform.OS === 'android' && !hasStoragePermissions) {
+        await requestStoragePermissions();
+      }
+      await CameraRoll.saveAsset(videoUri, {
+        type: 'video',
+        album: ALBUM_NAME,
+      });
+    } catch (error) {
+      console.error('Error al guardar el video:', error);
+    }
+  };
+
   const stopRecording = async (force = false) => {
     if (isRecording || force) {
       await cameraRef.current?.stopRecording();
@@ -108,24 +130,19 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     }
   };
 
-  // Pause recording and pause the timer
   const pauseRecording = async () => {
     if (cameraRef.current && isRecording) {
       await cameraRef.current.pauseRecording();
-      stopTimer(); // Stop the timer when recording is paused
     }
   };
 
-  // Resume recording and resume the timer
   const resumeRecording = async () => {
     if (cameraRef.current && !isRecording) {
       await cameraRef.current.resumeRecording();
-      setIsRecording(true); // Set recording state to true
-      startTimer(); // Restart the timer when recording resumes
+      setIsRecording(true);
     }
   };
 
-  // Cancel recording and stop the timer
   const cancelRecording = async () => {
     if (cameraRef.current && isRecording) {
       await cameraRef.current.cancelRecording();
@@ -133,32 +150,16 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     }
   };
 
-  // Function to start the timer
-  const startTimer = () => {
-    if (!timerRef.current) {
-      timerRef.current = setInterval(() => {
-        setVideoLength(prev => prev - 1); // Increment video length by 1 second
-      }, 1000); // Increment every 1 second
-    }
-  };
-
-  // Function to stop the timer
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  // Toggle flash on/off
   const toggleFlash = () => {
     setIsFlashEnabled(prev => !prev);
   };
 
-  // Toggle between front and back cameras
   const toggleCameraPosition = () => {
     const newPosition = cameraPosition === 'back' ? 'front' : 'back';
-    const newDevice = getCameraDevice(devices, newPosition);
+    const newDevice = getCameraDevice(
+      Camera.getAvailableCameraDevices(),
+      newPosition,
+    );
 
     setCameraPosition(newPosition);
     setDevice(newDevice);
@@ -170,10 +171,14 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     }
   }, [videoLength]);
 
-  // Clean up everything when the component unmounts
+  useTimer(isRecording, () => {
+    setVideoLength(prev => prev - 1);
+  });
+
+  // Stop recording when the component unmounts
   useEffect(() => {
     return () => {
-      stopTimer(); // Stop the timer when the component unmounts
+      stopRecording(true);
     };
   }, []);
 
@@ -181,21 +186,23 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     <CameraContext.Provider
       value={{
         cameraRef,
+        device,
+        videoLength,
         isRecording,
+        isFlashEnabled,
         startRecording,
         stopRecording,
         pauseRecording,
         resumeRecording,
         cancelRecording,
         hasCameraPermission,
-        requestCameraPermission,
         hasMicroPermission,
+        hasStoragePermissions,
+        requestCameraPermission,
         requestMicroPermission,
-        device,
+        requestStoragePermissions,
         toggleCameraPosition,
-        isFlashEnabled,
         toggleFlash,
-        videoLength, // Expose the video length
       }}>
       {children}
     </CameraContext.Provider>

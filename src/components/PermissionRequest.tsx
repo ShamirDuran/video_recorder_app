@@ -1,8 +1,8 @@
 import {View, Text, Button, StyleSheet} from 'react-native';
-import {colors} from '../../theme';
+import {colors} from '../theme';
 
 interface Props {
-  permissionType: 'la cámara' | 'el micrófono';
+  permissionType: string;
   requestPermission: () => void;
 }
 
@@ -12,7 +12,7 @@ export const PermissionRequest = (props: Props) => {
       <Text>No se ha otorgado permiso para {props.permissionType}</Text>
       <Button
         color={colors.primary}
-        title={`Solicitar permiso para ${props.permissionType}`}
+        title={`Solicitar permiso`}
         onPress={props.requestPermission}
       />
     </View>

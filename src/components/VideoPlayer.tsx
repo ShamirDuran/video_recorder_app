@@ -14,6 +14,7 @@ interface VideoPlayerProps {
  */
 export const VideoPlayer = ({video}: VideoPlayerProps) => {
   const videoRef = useRef<VideoRef>(null);
+
   return (
     <Video
       source={video}

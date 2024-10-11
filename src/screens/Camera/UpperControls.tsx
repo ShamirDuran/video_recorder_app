@@ -14,62 +14,71 @@ export const UpperControls = ({closeCamera}: Props) => {
     useContext(CameraContext);
 
   return (
-    <View style={styles.container}>
-      {!isRecording && (
-        <View style={styles.leftElement}>
-          <Icon
-            name="arrow-back"
-            size={23}
-            color="white"
-            onPress={closeCamera}
-          />
-        </View>
-      )}
+    <View style={styles.wrapper}>
+      <View style={styles.container}>
+        {!isRecording && (
+          <View style={styles.leftElement}>
+            <Icon
+              name="arrow-back"
+              size={23}
+              color="white"
+              onPress={closeCamera}
+            />
+          </View>
+        )}
 
-      <View
-        style={[
-          styles.centeredElement,
-          isRecording && {
-            backgroundColor: colors.red,
-            paddingHorizontal: 10,
-            borderRadius: 5,
-          },
-        ]}>
-        <Text
+        <View
           style={[
-            styles.timeCounter,
+            styles.centeredElement,
             isRecording && {
-              fontSize: 23,
+              backgroundColor: colors.red,
+              paddingHorizontal: 10,
+              borderRadius: 5,
             },
           ]}>
-          {formatTime(videoLength)}
-        </Text>
-      </View>
-
-      {!isRecording && (
-        <View style={styles.rightElement}>
-          {isFlashEnabled ? (
-            <Icon
-              name="flash-on"
-              size={23}
-              color="white"
-              onPress={toggleFlash}
-            />
-          ) : (
-            <Icon
-              name="flash-off"
-              size={23}
-              color="white"
-              onPress={toggleFlash}
-            />
-          )}
+          <Text
+            style={[
+              styles.timeCounter,
+              isRecording && {
+                fontSize: 23,
+              },
+            ]}>
+            {formatTime(videoLength)}
+          </Text>
         </View>
-      )}
+
+        {!isRecording && (
+          <View style={styles.rightElement}>
+            {isFlashEnabled ? (
+              <Icon
+                name="flash-on"
+                size={23}
+                color="white"
+                onPress={toggleFlash}
+              />
+            ) : (
+              <Icon
+                name="flash-off"
+                size={23}
+                color="white"
+                onPress={toggleFlash}
+              />
+            )}
+          </View>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
   container: {
     backgroundColor: 'black',
     position: 'relative',

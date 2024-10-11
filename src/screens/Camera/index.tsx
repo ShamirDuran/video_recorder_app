@@ -6,8 +6,8 @@ import {Camera} from 'react-native-vision-camera';
 import {CameraContext} from '../../context';
 import {RootStackParamsList} from '../../navigator/StackNavigator';
 import {BottomControls} from './BottomControls';
-import {PermissionRequest} from './PermissionRequest';
 import {UpperControls} from './UpperControls';
+import {PermissionRequest} from '../../components';
 
 export const CameraScreen = ({
   navigation,
@@ -16,9 +16,11 @@ export const CameraScreen = ({
     cameraRef,
     device,
     hasCameraPermission,
-    requestCameraPermission,
     hasMicroPermission,
+    hasStoragePermissions,
+    requestCameraPermission,
     requestMicroPermission,
+    requestStoragePermissions,
   } = useContext(CameraContext);
 
   if (!hasCameraPermission) {
@@ -39,12 +41,22 @@ export const CameraScreen = ({
     );
   }
 
+  if (!hasStoragePermissions) {
+    return (
+      <PermissionRequest
+        permissionType="el almacenamiento"
+        requestPermission={requestStoragePermissions}
+      />
+    );
+  }
+
   if (!device) {
     return <Text>No se ha encontrado un dispositivo de cámara</Text>;
   }
 
   const closeCamera = () => {
-    navigation.goBack();
+    /// clear all stack then go home
+    navigation.popToTop();
   };
 
   // Stop recording when the user leaves the screen to avoid memory leaks

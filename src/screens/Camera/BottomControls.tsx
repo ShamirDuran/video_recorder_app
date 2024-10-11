@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     height: '15%',
     maxHeight: 200,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    zIndex: 1,
   },
   container: {
     position: 'relative',
