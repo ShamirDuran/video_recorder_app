@@ -12,6 +12,7 @@ import {PermissionsAndroid, Platform} from 'react-native';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 
 export const ALBUM_NAME = 'VideoRecorderApp';
+const CAMERA_TIMEOUT = 30;
 
 interface CameraProviderProps {
   children: React.ReactNode;
@@ -102,7 +103,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
         });
 
         setIsRecording(true);
-        setVideoLength(5); // Reset video length
+        setVideoLength(CAMERA_TIMEOUT); // Reset video length
       } catch (error) {
         console.error('Error al iniciar la grabación:', error);
       }

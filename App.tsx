@@ -3,6 +3,7 @@ import Toast from 'react-native-toast-message';
 import StackNavigator from './src/navigator/StackNavigator';
 import {useEffect} from 'react';
 import {Appearance} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -11,7 +12,9 @@ function App(): React.JSX.Element {
 
   return (
     <NavigationContainer>
-      <StackNavigator />
+      <GestureHandlerRootView>
+        <StackNavigator />
+      </GestureHandlerRootView>
       <Toast />
     </NavigationContainer>
   );

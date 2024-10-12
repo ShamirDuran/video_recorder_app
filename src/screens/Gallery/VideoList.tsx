@@ -105,7 +105,7 @@ const VideoList = ({albumName}: Props) => {
             </View>
 
             <BackButton onPress={() => setIsFullScreen(false)} />
-            <IconButton
+            {/* <IconButton
               style={styles.deleteButton}
               onPress={() => {
                 if (selectedVideo) {
@@ -114,7 +114,7 @@ const VideoList = ({albumName}: Props) => {
                 }
               }}>
               <Icon name="delete" size={26} color={colors.red} />
-            </IconButton>
+            </IconButton> */}
           </View>
         </Modal>
       )}

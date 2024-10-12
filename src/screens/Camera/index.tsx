@@ -2,12 +2,26 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useContext} from 'react';
 import {StyleSheet, Text} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Camera} from 'react-native-vision-camera';
+import {Camera, CameraProps} from 'react-native-vision-camera';
 import {CameraContext} from '../../context';
 import {RootStackParamsList} from '../../navigator/StackNavigator';
 import {BottomControls} from './BottomControls';
 import {UpperControls} from './UpperControls';
 import {PermissionRequest} from '../../components';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import Reanimated, {
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedProps,
+  useSharedValue,
+} from 'react-native-reanimated';
+
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
+
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 
 export const CameraScreen = ({
   navigation,
@@ -22,6 +36,28 @@ export const CameraScreen = ({
     requestMicroPermission,
     requestStoragePermissions,
   } = useContext(CameraContext);
+
+  const zoom = useSharedValue(device!.neutralZoom);
+
+  const zoomOffset = useSharedValue(0);
+  const zoomGesture = Gesture.Pinch()
+    .onBegin(() => {
+      zoomOffset.value = zoom.value;
+    })
+    .onUpdate(event => {
+      const z = zoomOffset.value * event.scale;
+      zoom.value = interpolate(
+        z,
+        [1, 10],
+        [device!.minZoom, device!.maxZoom],
+        Extrapolation.CLAMP,
+      );
+    });
+
+  const animatedProps = useAnimatedProps<CameraProps>(
+    () => ({zoom: zoom.value}),
+    [zoom],
+  );
 
   if (!hasCameraPermission) {
     return (
@@ -67,14 +103,17 @@ export const CameraScreen = ({
   return (
     <SafeAreaView style={styles.container}>
       <UpperControls closeCamera={closeCamera} />
-      <Camera
-        style={{flex: 1}}
-        device={device}
-        isActive={true} // Start the camera
-        ref={cameraRef}
-        video={true} // Record video
-        audio={true} // Record audio
-      />
+      <GestureDetector gesture={zoomGesture}>
+        <ReanimatedCamera
+          style={{flex: 1}}
+          device={device}
+          isActive={true} // Start the camera
+          ref={cameraRef}
+          video={true} // Record video
+          audio={true} // Record audio
+          animatedProps={animatedProps}
+        />
+      </GestureDetector>
       <BottomControls />
     </SafeAreaView>
   );
