@@ -1,9 +1,15 @@
 import {useEffect, useState} from 'react';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import Toast from 'react-native-toast-message';
+import RNFS from 'react-native-fs';
+
+export interface VideoElement {
+  uri: string;
+  path: string;
+}
 
 export const useVideos = (albumName: string) => {
-  const [videos, setVideos] = useState<string[]>([]);
+  const [videos, setVideos] = useState<VideoElement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,7 +21,16 @@ export const useVideos = (albumName: string) => {
         groupName: albumName, // Nombre del álbum
       });
 
-      const videoUris = result.edges.map(edge => edge.node.image.uri);
+      const videoUris = await Promise.all(
+        result.edges.map(async edge => {
+          const filePath = await RNFS.stat(edge.node.image.uri);
+          return {
+            uri: edge.node.image.uri,
+            path: filePath.originalFilepath,
+          };
+        }),
+      );
+
       setVideos(videoUris);
     } catch (err) {
       setError('Error fetching videos');
@@ -25,33 +40,28 @@ export const useVideos = (albumName: string) => {
     }
   };
 
-  const deleteVideo = async (uri: string) => {
+  const deleteVideo = async (video: VideoElement) => {
     try {
-      await CameraRoll.deletePhotos([uri])
-        .then(() =>
-          Toast.show({
-            position: 'bottom',
-            type: 'success',
-            text1: 'Video eliminado',
-            visibilityTime: 3000,
-            autoHide: true,
-          }),
-        )
-        .catch(error => {
-          console.log(error);
+      await RNFS.unlink(video.path)
+        .then(() => {
+          console.log('deleted');
 
-          Toast.show({
-            position: 'bottom',
-            type: 'error',
-            text1: 'Error al eliminar el video',
-            visibilityTime: 3000,
-            autoHide: true,
-          });
+          RNFS.scanFile(video.path)
+            .then(() => console.log('scanned'))
+            .catch(err => console.log(err));
+        })
+        .catch(err => {
+          console.log(err);
         });
 
-      setVideos(videos.filter(video => video !== uri));
+      setVideos(videos.filter(v => v.uri !== video.uri));
     } catch (err) {
       console.error(err);
+      Toast.show({
+        type: 'error',
+        text1: 'Ocurrio un error',
+        text2: 'Ocurrio un error al eliminar el video',
+      });
     }
   };
 

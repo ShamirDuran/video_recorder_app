@@ -1,19 +1,21 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import {PhotoIdentifier} from '@react-native-camera-roll/camera-roll';
+import React, {useState} from 'react';
 import {
-  View,
-  Text,
-  FlatList,
   ActivityIndicator,
-  StyleSheet,
-  Modal,
-  TouchableWithoutFeedback,
+  FlatList,
   Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import {useStoragePermissions, useVideos} from '../../hooks';
-import {colors} from '../../theme';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 import {BackButton, IconButton, PermissionRequest} from '../../components';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {useStoragePermissions, useVideos} from '../../hooks';
+import {colors} from '../../theme';
+import {VideoElement} from '../../hooks/useVideos';
 
 interface Props {
   albumName: string;
@@ -24,10 +26,10 @@ const VideoList = ({albumName}: Props) => {
     useVideos(albumName);
   const {hasPermissions, requestPermissions} = useStoragePermissions();
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoElement | null>(null);
 
-  const handleVideoPress = (uri: string) => {
-    setSelectedVideo(uri);
+  const handleVideoPress = (video: VideoElement) => {
+    setSelectedVideo(video);
     setIsFullScreen(true);
   };
 
@@ -74,11 +76,12 @@ const VideoList = ({albumName}: Props) => {
           data={[...videos]}
           keyExtractor={(_, index) => index.toString()}
           numColumns={4}
-          renderItem={({item}) => (
-            <TouchableWithoutFeedback onPress={() => handleVideoPress(item)}>
+          renderItem={({item: imagePath}) => (
+            <TouchableWithoutFeedback
+              onPress={() => handleVideoPress(imagePath)}>
               <View style={styles.listItem}>
                 <Image
-                  source={{uri: item}}
+                  source={{uri: imagePath.uri}}
                   style={styles.videoItem}
                   resizeMode="cover"
                 />
@@ -93,7 +96,7 @@ const VideoList = ({albumName}: Props) => {
           <View style={styles.fullScreenContainer}>
             <View style={styles.fullScreenVideoContainer}>
               <Video
-                source={{uri: selectedVideo}}
+                source={{uri: selectedVideo.uri}}
                 style={styles.fullScreenVideo}
                 controls={true} // Agregar controles para reproducir/pausar
                 resizeMode="contain"
