@@ -1,21 +1,20 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useContext} from 'react';
-import {StyleSheet, Text} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {Camera, CameraProps} from 'react-native-vision-camera';
-import {CameraContext} from '../../context';
-import {RootStackParamsList} from '../../navigator/StackNavigator';
-import {BottomControls} from './BottomControls';
-import {UpperControls} from './UpperControls';
-import {PermissionRequest} from '../../components';
+import {Alert, StyleSheet, Text} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Reanimated, {
   Extrapolation,
   interpolate,
-  runOnJS,
   useAnimatedProps,
   useSharedValue,
 } from 'react-native-reanimated';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {Camera, CameraProps} from 'react-native-vision-camera';
+import {PermissionRequest, VideoModal} from '../../components';
+import {CameraContext} from '../../context';
+import {RootStackParamsList} from '../../navigator/StackNavigator';
+import {BottomControls} from './BottomControls';
+import {UpperControls} from './UpperControls';
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -29,6 +28,9 @@ export const CameraScreen = ({
   const {
     cameraRef,
     device,
+    recordedVideo,
+    saveRecording,
+    clearRecordedVideo,
     hasCameraPermission,
     hasMicroPermission,
     hasStoragePermissions,
@@ -90,15 +92,26 @@ export const CameraScreen = ({
     return <Text>No se ha encontrado un dispositivo de cámara</Text>;
   }
 
-  const closeCamera = () => {
-    /// clear all stack then go home
-    navigation.popToTop();
-  };
+  const closeCamera = () => navigation.popToTop();
 
   // Stop recording when the user leaves the screen to avoid memory leaks
   navigation.addListener('beforeRemove', () => {
     cameraRef!.current?.cancelRecording();
   });
+
+  const createSaveVideoConfirmDialog = () => {
+    Alert.alert('Guardar video', '¿Deseas guardar el video grabado?', [
+      {
+        text: 'No',
+        style: 'cancel',
+        onPress: clearRecordedVideo,
+      },
+      {
+        text: 'Sí',
+        onPress: saveRecording,
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -115,6 +128,15 @@ export const CameraScreen = ({
         />
       </GestureDetector>
       <BottomControls />
+
+      {recordedVideo && (
+        <VideoModal
+          isVisible={!!recordedVideo}
+          video={recordedVideo}
+          handleClose={clearRecordedVideo}
+          handleSave={createSaveVideoConfirmDialog}
+        />
+      )}
     </SafeAreaView>
   );
 };

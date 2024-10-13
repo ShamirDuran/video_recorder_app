@@ -8,8 +8,9 @@ import {
   useMicrophonePermission,
 } from 'react-native-vision-camera';
 import {useStoragePermissions, useTimer} from '../hooks';
-import {PermissionsAndroid, Platform} from 'react-native';
+import {Platform} from 'react-native';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import {VideoElement} from '../hooks/useVideos';
 
 export const ALBUM_NAME = 'VideoRecorderApp';
 const CAMERA_TIMEOUT = 30;
@@ -23,12 +24,15 @@ interface CameraContextType {
   isRecording: boolean;
   isFlashEnabled?: boolean;
   videoLength: number;
+  recordedVideo?: VideoElement;
   device?: CameraDevice;
   startRecording: () => void;
   stopRecording: () => void;
   pauseRecording: () => void;
   resumeRecording: () => void;
   cancelRecording: () => void;
+  saveRecording: () => void;
+  clearRecordedVideo: () => void;
   toggleCameraPosition: () => void;
   hasCameraPermission: boolean;
   hasMicroPermission: boolean;
@@ -47,6 +51,8 @@ export const CameraContext = createContext<CameraContextType>({
   pauseRecording: () => {},
   resumeRecording: () => {},
   cancelRecording: () => {},
+  saveRecording: () => {},
+  clearRecordedVideo: () => {},
   hasCameraPermission: false,
   hasMicroPermission: false,
   hasStoragePermissions: false,
@@ -61,6 +67,9 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isFlashEnabled, setIsFlashEnabled] = useState(false);
   const [videoLength, setVideoLength] = useState(0);
+  const [recordedVideo, setRecordedVideo] = useState<
+    VideoElement | undefined
+  >();
   const cameraRef = useRef<Camera>(null);
   const [cameraPosition, setCameraPosition] = useState<CameraPosition>('back');
   const [device, setDevice] = useState<CameraDevice | undefined>(
@@ -84,6 +93,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
   const clearDataOnStopRecording = useCallback(() => {
     setVideoLength(0);
     setIsRecording(false);
+    setRecordedVideo(undefined);
   }, []);
 
   const startRecording = async () => {
@@ -94,7 +104,11 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
           videoBitRate: 'high',
           onRecordingFinished: async video => {
             console.log('Video grabado:', video);
-            await saveVideo(video.path);
+
+            setRecordedVideo({
+              uri: video.path,
+              path: video.path,
+            });
           },
           onRecordingError: error => {
             console.error('Error grabando video:', error);
@@ -103,6 +117,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
         });
 
         setIsRecording(true);
+        setRecordedVideo(undefined);
         setVideoLength(CAMERA_TIMEOUT); // Reset video length
       } catch (error) {
         console.error('Error al iniciar la grabación:', error);
@@ -110,18 +125,26 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
     }
   };
 
-  const saveVideo = async (videoUri: string) => {
+  const saveRecording = async () => {
     try {
+      if (!recordedVideo) return;
+
       if (Platform.OS === 'android' && !hasStoragePermissions) {
         await requestStoragePermissions();
       }
-      await CameraRoll.saveAsset(videoUri, {
+      await CameraRoll.saveAsset(recordedVideo.uri, {
         type: 'video',
         album: ALBUM_NAME,
       });
+
+      setRecordedVideo(undefined);
     } catch (error) {
       console.error('Error al guardar el video:', error);
     }
+  };
+
+  const clearRecordedVideo = () => {
+    setRecordedVideo(undefined);
   };
 
   const stopRecording = async (force = false) => {
@@ -179,6 +202,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
   // Stop recording when the component unmounts
   useEffect(() => {
     return () => {
+      clearDataOnStopRecording();
       stopRecording(true);
     };
   }, []);
@@ -189,6 +213,7 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
         cameraRef,
         device,
         videoLength,
+        recordedVideo,
         isRecording,
         isFlashEnabled,
         startRecording,
@@ -196,6 +221,8 @@ export const CameraProvider = ({children}: CameraProviderProps) => {
         pauseRecording,
         resumeRecording,
         cancelRecording,
+        saveRecording,
+        clearRecordedVideo,
         hasCameraPermission,
         hasMicroPermission,
         hasStoragePermissions,
