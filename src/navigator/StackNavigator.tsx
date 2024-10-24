@@ -31,11 +31,20 @@ const StackNavigator = () => {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
+        orientation: 'portrait',
       }}>
       <Stack.Group>
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Image" component={ImageScreen} />
-        <Stack.Screen name="Video" component={VideoScreen} />
+        <Stack.Screen
+          name="Image"
+          component={ImageScreen}
+          options={{orientation: 'all'}}
+        />
+        <Stack.Screen
+          name="Video"
+          component={VideoScreen}
+          options={{orientation: 'all'}}
+        />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
         <Stack.Screen name="Camera" component={CameraWithProvider} />
       </Stack.Group>
