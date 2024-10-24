@@ -10,6 +10,7 @@ interface Props {
 export const StyledButton = (props: Props) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.9}
       style={props.styles ?? styles.button}
       onPress={props.onPress}>
       <Text style={styles.text}>{props.text}</Text>
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 5,
+    borderRadius: 10,
     elevation: 3,
     backgroundColor: colors.primary,
     minWidth: 135,

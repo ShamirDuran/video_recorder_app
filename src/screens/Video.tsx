@@ -10,7 +10,7 @@ export const VideoScreen = (
   return (
     <SafeAreaView style={styles.container}>
       <BackButton onPress={() => props.navigation.goBack()} />
-      <VideoPlayer video={require('../../assets/videos/test-video.mp4')} />
+      <VideoPlayer video={require('../../assets/videos/wedding_video.mov')} />
     </SafeAreaView>
   );
 };

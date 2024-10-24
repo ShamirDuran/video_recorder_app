@@ -1,15 +1,15 @@
-import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {ImageBackground, SafeAreaView, StyleSheet, View} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamsList} from '../navigator/StackNavigator';
 import {StyledButton} from '../components';
-import {colors} from '../theme';
+const HomeBackground = require('../../assets/images/home_page_bg.jpeg');
 
 export const HomeScreen = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamsList, 'Home'>) => {
   return (
     <SafeAreaView>
-      <View style={styles.bodyWrapper}>
+      <ImageBackground style={styles.backgroundImage} source={HomeBackground}>
         <StyledButton
           text="Imagen"
           onPress={() => navigation.navigate('Image')}
@@ -26,19 +26,18 @@ export const HomeScreen = ({
           text="Cámara"
           onPress={() => navigation.navigate('Camera')}
         />
-      </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  bodyWrapper: {
+  backgroundImage: {
     display: 'flex',
     height: '100%',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: colors.secondary,
   },
 });

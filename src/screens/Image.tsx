@@ -3,7 +3,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {BackButton} from '../components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamsList} from '../navigator/StackNavigator';
-const StaticImage = require('../../assets/images/test-image.jpg');
+const StaticImage = require('../../assets/images/image_page_bg.jpg');
 
 export const ImageScreen = (
   props: NativeStackScreenProps<RootStackParamsList, 'Image'>,
@@ -29,8 +29,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   image: {
-    width: '95%',
-    height: undefined,
-    aspectRatio: 1,
+    width: '100%', // Ancho del 100%
+    height: undefined, // Alto del 100%
+    aspectRatio: 1, // Relación de aspecto 19:9
   },
 });
