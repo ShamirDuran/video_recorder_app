@@ -15,7 +15,7 @@ export const ImageScreen = (
   return (
     <SafeAreaView style={styles.container}>
       <BackButton onPress={handleBackButton} />
-      <Image style={styles.image} source={StaticImage} resizeMode="contain" />
+      <Image style={styles.image} source={StaticImage} resizeMode="cover" />
     </SafeAreaView>
   );
 };
@@ -29,8 +29,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   image: {
-    width: '100%', // Ancho del 100%
-    height: undefined, // Alto del 100%
-    aspectRatio: 1, // Relación de aspecto 19:9
+    width: '100%',
+    height: '100%',
   },
 });
