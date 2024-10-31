@@ -5,6 +5,7 @@ import Video, {VideoRef} from 'react-native-video';
 
 interface VideoPlayerProps {
   video: any;
+  fullscreen?: boolean;
 }
 
 /**
@@ -12,7 +13,7 @@ interface VideoPlayerProps {
  * @param video Video file to play
  * @returns void
  */
-export const VideoPlayer = ({video}: VideoPlayerProps) => {
+export const VideoPlayer = ({video, fullscreen = false}: VideoPlayerProps) => {
   const videoRef = useRef<VideoRef>(null);
 
   return (
@@ -37,7 +38,6 @@ export const VideoPlayer = ({video}: VideoPlayerProps) => {
 const styles = StyleSheet.create({
   video: {
     width: '100%',
-    height: undefined,
-    aspectRatio: 16 / 9,
+    height: '100%',
   },
 });
