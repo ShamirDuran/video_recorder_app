@@ -2,7 +2,13 @@ import {
   createNativeStackNavigator,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import {CameraScreen, HomeScreen, ImageScreen, VideoScreen} from '../screens';
+import {
+  CameraScreen,
+  HomeScreen,
+  ImageScreen,
+  TablesScreen,
+  VideoScreen,
+} from '../screens';
 import {GalleryScreen} from '../screens/Gallery';
 import {CameraProvider} from '../context';
 
@@ -12,6 +18,7 @@ export type RootStackParamsList = {
   Video: undefined;
   Gallery: undefined;
   Camera: undefined;
+  Tables: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamsList>();
@@ -46,6 +53,7 @@ const StackNavigator = () => {
           options={{orientation: 'all'}}
         />
         <Stack.Screen name="Gallery" component={GalleryScreen} />
+        <Stack.Screen name="Tables" component={TablesScreen} />
         <Stack.Screen name="Camera" component={CameraWithProvider} />
       </Stack.Group>
     </Stack.Navigator>

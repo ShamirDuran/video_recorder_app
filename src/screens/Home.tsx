@@ -11,20 +11,24 @@ export const HomeScreen = ({
     <SafeAreaView>
       <ImageBackground style={styles.backgroundImage} source={HomeBackground}>
         <StyledButton
-          text="Imagen"
+          text="MINUTO A MINUTO"
           onPress={() => navigation.navigate('Image')}
         />
         <StyledButton
-          text="Video"
+          text="MOMENTO DE LOS NOVIOS"
           onPress={() => navigation.navigate('Video')}
         />
         <StyledButton
-          text="Galería"
-          onPress={() => navigation.navigate('Gallery')}
+          text="DEJA TU MENSAJE"
+          onPress={() => navigation.navigate('Camera')}
         />
         <StyledButton
-          text="Cámara"
-          onPress={() => navigation.navigate('Camera')}
+          text="BUSCA TU MESA"
+          onPress={() => navigation.navigate('Tables')}
+        />
+        <StyledButton
+          text="GALERIA"
+          onPress={() => navigation.navigate('Gallery')}
         />
       </ImageBackground>
     </SafeAreaView>
